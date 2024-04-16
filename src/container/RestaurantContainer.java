@@ -7,16 +7,11 @@ import jade.core.Runtime;
 import jade.wrapper.AgentContainer;
 import jade.wrapper.AgentController;
 import jade.wrapper.ControllerException;
-import javafx.application.Platform;
-import javafx.embed.swing.JFXPanel;
-import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
 
 import javax.swing.*;
+
+import agents.RestaurantAgent;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -25,13 +20,12 @@ import java.util.List;
 
 public class RestaurantContainer {
     private JFrame frame;
-    private List<RestaurantInfo> restaurantInfos;
+    private JTextField textField;
+    private static List<RestaurantInfo> restaurantInfos;
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            RestaurantContainer container = new RestaurantContainer();
-            container.init();
-        });
+        RestaurantContainer container = new RestaurantContainer();
+        container.init();
     }
 
     private void init() {
@@ -44,7 +38,7 @@ public class RestaurantContainer {
         panel.setLayout(new FlowLayout());
 
         JLabel label = new JLabel("Number of restaurants:");
-        JTextField textField = new JTextField(10);
+        textField = new JTextField(10);
         JButton button = new JButton("Send");
 
         panel.add(label);
@@ -57,6 +51,7 @@ public class RestaurantContainer {
             public void actionPerformed(ActionEvent e) {
                 String numberOfRestaurantsStr = textField.getText();
                 int numberOfRestaurants = Integer.parseInt(numberOfRestaurantsStr);
+
                 showRestaurantInfoInterface(numberOfRestaurants);
             }
         });
@@ -68,43 +63,41 @@ public class RestaurantContainer {
         frame.getContentPane().removeAll();
         frame.setTitle("Restaurant Information");
         frame.setSize(300, 200);
+        frame.setLayout(new BorderLayout());
+
+        JPanel panel = new JPanel();
+        panel.setLayout(new GridLayout(numberOfRestaurants, 2));
 
         restaurantInfos = new ArrayList<>();
 
-        GridPane gridPane = new GridPane();
-        gridPane.setHgap(10);
-        gridPane.setVgap(10);
-
         for (int i = 1; i <= numberOfRestaurants; i++) {
-            Label nameLabel = new Label("Restaurant " + i + " Name: ");
-            TextField nameTextField = new TextField();
+            JLabel nameLabel = new JLabel("Restaurant " + i + " Name: ");
+            JTextField nameTextField = new JTextField(10);
 
-            Label capacityLabel = new Label("Restaurant " + i + " Capacity: ");
-            TextField capacityTextField = new TextField();
+            JLabel capacityLabel = new JLabel("Restaurant " + i + " Capacity: ");
+            JTextField capacityTextField = new JTextField(10);
 
-            gridPane.add(nameLabel, 0, i);
-            gridPane.add(nameTextField, 1, i);
-            gridPane.add(capacityLabel, 2, i);
-            gridPane.add(capacityTextField, 3, i);
+            panel.add(nameLabel);
+            panel.add(nameTextField);
+            panel.add(capacityLabel);
+            panel.add(capacityTextField);
 
             restaurantInfos.add(new RestaurantInfo(nameTextField, capacityTextField));
         }
 
-        Button validateButton = new Button("Validate");
-        validateButton.setOnAction(event -> createRestaurantAgents());
+        JButton validateButton = new JButton("Validate");
+        validateButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                createRestaurantAgents();
 
-        BorderPane borderPane = new BorderPane();
-        borderPane.setCenter(gridPane);
-        borderPane.setBottom(validateButton);
-
-        JFXPanel fxPanel = new JFXPanel();
-        Platform.runLater(() -> {
-            fxPanel.setScene(new Scene(borderPane));
+            }
         });
 
-        frame.add(fxPanel, BorderLayout.CENTER);
+        frame.add(panel, BorderLayout.CENTER);
+        frame.add(validateButton, BorderLayout.SOUTH);
         frame.revalidate();
     }
+
 
     private void createRestaurantAgents() {
         String containerName = "restaurant-container";
@@ -131,7 +124,7 @@ public class RestaurantContainer {
                 int restaurantCapacity = restaurantInfo.getRestaurantCapacity();
 
                 Object[] agentArgs = new Object[]{restaurantName, restaurantCapacity};
-                AgentController agentController = agentContainer.createNewAgent("restaurant" + (i + 1), agents.RestaurantAgent.class.getName(), agentArgs);
+                AgentController agentController = agentContainer.createNewAgent("restaurant" + (i + 1), RestaurantAgent.class.getName(), agentArgs);
                 System.out.println("The agent " + restaurantName + " belongs to the container: " + agentContainer.getContainerName());
                 agentController.start();
             }
@@ -150,11 +143,14 @@ public class RestaurantContainer {
         PersonneContainer.main(new String[0]);
     }
 
-    private static class RestaurantInfo {
-        private TextField nameTextField;
-        private TextField capacityTextField;
 
-        public RestaurantInfo(TextField nameTextField, TextField capacityTextField) {
+
+
+    private static class RestaurantInfo {
+        private JTextField nameTextField;
+        private JTextField capacityTextField;
+
+        public RestaurantInfo(JTextField nameTextField, JTextField capacityTextField) {
             this.nameTextField = nameTextField;
             this.capacityTextField = capacityTextField;
         }

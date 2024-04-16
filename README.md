@@ -1,1 +1,0 @@
-# Restaurant-reservation-using-SMA
