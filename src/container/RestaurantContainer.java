@@ -8,74 +8,101 @@ import jade.wrapper.AgentContainer;
 import jade.wrapper.AgentController;
 import jade.wrapper.ControllerException;
 
-import javax.swing.*;
+import javafx.application.Application;
 
 import agents.RestaurantAgent;
+import javafx.application.Platform;
+import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
+import javafx.geometry.Insets;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
-public class RestaurantContainer {
-    private JFrame frame;
-    private JTextField textField;
+public class RestaurantContainer extends Application{
+    private Frame frame;
+    private TextField textField;
     private static List<RestaurantInfo> restaurantInfos;
 
+    // Define a set of characters from which random names will be generated
+    private static final String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+
     public static void main(String[] args) {
-        RestaurantContainer container = new RestaurantContainer();
-        container.init();
+        launch(args);
     }
 
-    private void init() {
-        frame = new JFrame("Restaurant Interface");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    @Override
+    public void start(Stage stage) {
+        frame = new Frame("Restaurant Interface");
         frame.setSize(300, 200);
         frame.setLayout(new BorderLayout());
 
-        JPanel panel = new JPanel();
-        panel.setLayout(new FlowLayout());
+        Panel panel = new Panel();
+        VBox vBox = new VBox();
+        vBox.setStyle("-fx-background-color: #7D8E95;");
+        vBox.setPadding(new Insets(20));
+        vBox.setSpacing(10);
 
-        JLabel label = new JLabel("Number of restaurants:");
-        textField = new JTextField(10);
-        JButton button = new JButton("Send");
+        Label label = new Label("Number of restaurants:");
+        textField = new TextField(10); // Set preferred width
+        Button button = new Button("Send");
 
+        // Adjusting font and alignment for label
+        label.setFont(new Font("Arial", Font.PLAIN, 14));
+        label.setAlignment(Label.CENTER);
+
+        // Adding components to panel
         panel.add(label);
         panel.add(textField);
         panel.add(button);
 
-        frame.add(panel, BorderLayout.NORTH);
+        // Adding panel to frame
+        frame.add(panel, BorderLayout.CENTER);
 
+        // Adding ActionListener to button
         button.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 String numberOfRestaurantsStr = textField.getText();
                 int numberOfRestaurants = Integer.parseInt(numberOfRestaurantsStr);
-
                 showRestaurantInfoInterface(numberOfRestaurants);
             }
         });
 
+        // Center the frame on the screen
+        frame.setLocationRelativeTo(null);
+        // Make the frame visible
         frame.setVisible(true);
     }
 
     private void showRestaurantInfoInterface(int numberOfRestaurants) {
-        frame.getContentPane().removeAll();
-        frame.setTitle("Restaurant Information");
-        frame.setSize(300, 200);
-        frame.setLayout(new BorderLayout());
-
-        JPanel panel = new JPanel();
-        panel.setLayout(new GridLayout(numberOfRestaurants, 2));
-
         restaurantInfos = new ArrayList<>();
 
-        for (int i = 1; i <= numberOfRestaurants; i++) {
-            JLabel nameLabel = new JLabel("Restaurant " + i + " Name: ");
-            JTextField nameTextField = new JTextField(10);
+        Panel panel = new Panel();
+        panel.setLayout(new GridLayout(numberOfRestaurants, 2, 10, 10)); // Grid layout with gaps
 
-            JLabel capacityLabel = new JLabel("Restaurant " + i + " Capacity: ");
-            JTextField capacityTextField = new JTextField(10);
+        Random random = new Random();
+
+        for (int i = 1; i <= numberOfRestaurants; i++) {
+            int capacity = random.nextInt(10) + 1; // Generate a random capacity between 1 and 10
+
+            // Generate a random name
+            StringBuilder nameBuilder = new StringBuilder();
+            for (int j = 0; j < 6; j++) {
+                nameBuilder.append((char) ('A' + random.nextInt(26)));
+            }
+            String name = nameBuilder.toString();
+
+            Label nameLabel = new Label("Restaurant " + i + " Name: ");
+            TextField nameTextField = new TextField(name);
+
+            Label capacityLabel = new Label("Restaurant " + i + " Capacity: ");
+            TextField capacityTextField = new TextField(Integer.toString(capacity));
 
             panel.add(nameLabel);
             panel.add(nameTextField);
@@ -85,18 +112,22 @@ public class RestaurantContainer {
             restaurantInfos.add(new RestaurantInfo(nameTextField, capacityTextField));
         }
 
-        JButton validateButton = new JButton("Validate");
+        Button validateButton = new Button("Validate");
         validateButton.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 createRestaurantAgents();
-
             }
         });
 
+        frame.remove(frame.getComponent(0)); // Remove the previous panel
         frame.add(panel, BorderLayout.CENTER);
         frame.add(validateButton, BorderLayout.SOUTH);
-        frame.revalidate();
+        frame.pack(); // Adjust frame size
+        frame.setLocationRelativeTo(null); // Center the frame
+        frame.setVisible(true); // Make the frame visible
     }
+
 
 
     private void createRestaurantAgents() {
@@ -128,7 +159,7 @@ public class RestaurantContainer {
                 System.out.println("The agent " + restaurantName + " belongs to the container: " + agentContainer.getContainerName());
                 agentController.start();
             }
-
+            frame.dispose(); // Close the previous interface
             // Display PersonneContainer after creating agents
             displayPersonneContainer();
         } catch (ControllerException e) {
@@ -139,18 +170,28 @@ public class RestaurantContainer {
     }
 
     private void displayPersonneContainer() {
-        // Assuming PersonneContainer has a static main method
-        PersonneContainer.main(new String[0]);
+        PersonneContainer personneContainer = new PersonneContainer();
+        try {
+            Platform.runLater(() -> {
+                try {
+                    personneContainer.start(new Stage());
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 
 
 
     private static class RestaurantInfo {
-        private JTextField nameTextField;
-        private JTextField capacityTextField;
+        private TextField nameTextField;
+        private TextField capacityTextField;
 
-        public RestaurantInfo(JTextField nameTextField, JTextField capacityTextField) {
+        public RestaurantInfo(TextField nameTextField, TextField capacityTextField) {
             this.nameTextField = nameTextField;
             this.capacityTextField = capacityTextField;
         }

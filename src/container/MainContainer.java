@@ -6,7 +6,7 @@ import jade.util.ExtendedProperties;
 import jade.util.leap.Properties;
 import jade.wrapper.AgentContainer;
 
-public class test {
+public class MainContainer {
     public static void main(String[] args) throws Exception{
         Runtime runtime=Runtime.instance();
         Properties properties = new ExtendedProperties();

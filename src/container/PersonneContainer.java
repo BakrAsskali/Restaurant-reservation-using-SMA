@@ -1,23 +1,28 @@
 package container;
 
 import agents.PersonneAgent;
+import jade.wrapper.AgentContainer;
+import jade.core.Profile;
+import jade.core.ProfileImpl;
+import jade.wrapper.AgentController;
+import jade.wrapper.ControllerException;
 import javafx.application.Application;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class PersonneContainer extends Application {
     private BorderPane root;
     private TextField textField;
-    private VBox personVBox;
+    private int clientCount = 0;
     protected RestaurantContainer restaurantContainer = new RestaurantContainer();
 
     public static void main(String[] args) {
@@ -25,90 +30,60 @@ public class PersonneContainer extends Application {
     }
 
     @Override
-    public void start(Stage primaryStage) {
-        primaryStage.setTitle("Person Interface");
+    public void start(Stage primaryStage) throws Exception {
+
+        primaryStage.setTitle("Container Client");
+
         root = new BorderPane();
 
-        FlowPane topPane = new FlowPane();
-        topPane.setPadding(new Insets(10, 10, 10, 10));
-        topPane.setHgap(10);
+        VBox topPane = new VBox(10);
+        topPane.setPadding(new Insets(20));
+        topPane.setStyle("-fx-background-color: #FFBB98;");
 
-        Label label = new Label("Number of people:");
-        textField = new TextField();
-        Button button = new Button("Send");
+        Label labelN = new Label("Number of people (N):");
+        labelN.setTextFill(Color.WHITE);
+        labelN.setFont(Font.font("Arial", FontWeight.BOLD, 18));
 
-        button.setOnAction(e -> {
-            int numberOfPeople = Integer.parseInt(textField.getText());
-            List<String> restaurantNames = restaurantContainer.getRestaurantNames();
-            List<Integer> restaurantCapacity = restaurantContainer.getCapacities();
-            createPersonInterfaces(numberOfPeople, restaurantNames, restaurantCapacity);
-        });
+        TextField textFieldN = new TextField();
+        Button btnDeployer = new Button("Deploy Agents");
+        btnDeployer.setStyle("-fx-background-color: #7D8E95; -fx-text-fill: white; -fx-font-size: 16px; -fx-font-family: Arial;");
 
-        topPane.getChildren().addAll(label, textField, button);
+        topPane.getChildren().addAll(labelN, textFieldN, btnDeployer);
         root.setTop(topPane);
 
-        personVBox = new VBox(10);
-        personVBox.setPadding(new Insets(10, 10, 10, 10));
+        btnDeployer.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                String n = textFieldN.getText();
+                setClientCount(Integer.parseInt(n));
+                jade.core.Runtime runtime = jade.core.Runtime.instance();
+                Profile profile = new ProfileImpl(false);
+                profile.setParameter(Profile.MAIN_HOST, "localhost");
+                profile.setParameter(Profile.CONTAINER_NAME, "client");
+                AgentContainer agentContainer = runtime.createAgentContainer(profile);
+                for (int i = 1; i <= getClientCount(); i++) {
+                    try {
+                        AgentController agentController = agentContainer.createNewAgent("client" + i, PersonneAgent.class.getName(), null);
+                        System.out.println("Agents belong to the container: " + agentContainer.getContainerName());
+                        agentController.start();
+                    } catch (ControllerException e) {
+                        e.printStackTrace();
+                    }
+                }
+                primaryStage.close();
+            }
+        });
 
-        root.setCenter(personVBox);
-
-        Scene scene = new Scene(root, 400, 300);
+        Scene scene = new Scene(root, 400, 200);
         primaryStage.setScene(scene);
         primaryStage.show();
     }
 
-    private void createPersonInterfaces(int numberOfPeople, List<String> restaurantNames, List<Integer> restaurantCapacity) {
-        personVBox.getChildren().clear();
-        Map<String, Integer> reservations = new HashMap<>();
-
-        for (int i = 0; i < numberOfPeople; i++) {
-            VBox personBox = new VBox(5);
-            personBox.setPadding(new Insets(10, 10, 10, 10));
-
-            Label personLabel = new Label("Person " + (i + 1));
-            personBox.getChildren().add(personLabel);
-
-            ToggleGroup toggleGroup = new ToggleGroup();
-            for (String restaurant : restaurantNames) {
-                RadioButton radioButton = new RadioButton(restaurant);
-                radioButton.setToggleGroup(toggleGroup);
-                personBox.getChildren().add(radioButton);
-            }
-
-            Button reserveButton = new Button("Reserve");
-            personBox.getChildren().add(reserveButton);
-
-            int finalI = i;
-            reserveButton.setOnAction(e -> {
-                RadioButton selectedRadioButton = (RadioButton) toggleGroup.getSelectedToggle();
-                if (selectedRadioButton != null) {
-                    String selectedRestaurant = selectedRadioButton.getText();
-                    int reservationCount = reservations.getOrDefault(selectedRestaurant, 0);
-
-                    if (reservationCount < restaurantCapacity.get(restaurantNames.indexOf(selectedRestaurant))) {
-                        reservations.put(selectedRestaurant, reservationCount + 1);
-                        String message = "Reservation successful for Person " + (finalI + 1) +
-                                " at restaurant " + selectedRestaurant;
-                        showAlert(Alert.AlertType.INFORMATION, "Reservation", message);
-                    } else {
-                        String message = "Sorry, the capacity of restaurant " + selectedRestaurant +
-                                " is reached. Please choose another restaurant.";
-                        showAlert(Alert.AlertType.WARNING, "Reservation", message);
-                    }
-                } else {
-                    showAlert(Alert.AlertType.WARNING, "Reservation", "Please select a restaurant.");
-                }
-            });
-
-            personVBox.getChildren().add(personBox);
-        }
+    public int getClientCount() {
+        return clientCount;
     }
 
-    private void showAlert(Alert.AlertType alertType, String title, String content) {
-        Alert alert = new Alert(alertType);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(content);
-        alert.showAndWait();
+    public void setClientCount(int clientCount) {
+        this.clientCount = clientCount;
     }
 }
