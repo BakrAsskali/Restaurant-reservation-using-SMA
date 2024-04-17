@@ -1,6 +1,5 @@
 package agents;
 
-
 import jade.core.Agent;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;
@@ -10,25 +9,16 @@ import java.util.List;
 
 public class PersonneAgent extends Agent {
 
-    private static final long serialVersionUID = 1L;
     private int nombrePersonnes;
-    private List<String> restaurantNames;
 
     protected void setup() {
         Object[] args = getArguments();
-        if (args != null && args.length == 2) {
-            if (args[0] instanceof String && args[1] instanceof List) {
-                nombrePersonnes = Integer.parseInt((String) args[0]);
-                restaurantNames = (List<String>) args[1];
+        if (args[0] instanceof Integer) {
+            nombrePersonnes = (int) args[0];
 
-                System.out.println("Agent " + getLocalName() + " created. Nombre de personnes: " + nombrePersonnes);
-                System.out.println("Liste des restaurants: " + restaurantNames);
-            } else {
-                System.err.println("Invalid arguments. Expected a String and a List.");
-                doDelete();
-            }
+            System.out.println("Agent " + getLocalName() + " created. Nombre de personnes: " + nombrePersonnes);
         } else {
-            System.err.println("Invalid number of arguments. Expected 2 arguments.");
+            System.err.println("Invalid arguments. Expected an Integer and a List.");
             doDelete();
         }
 
@@ -48,4 +38,3 @@ public class PersonneAgent extends Agent {
         }
     }
 }
-

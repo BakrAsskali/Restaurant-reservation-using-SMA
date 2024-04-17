@@ -7,8 +7,6 @@ import jade.core.ProfileImpl;
 import jade.wrapper.AgentController;
 import jade.wrapper.ControllerException;
 import javafx.application.Application;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -23,7 +21,6 @@ public class PersonneContainer extends Application {
     private BorderPane root;
     private TextField textField;
     private int clientCount = 0;
-    protected RestaurantContainer restaurantContainer = new RestaurantContainer();
 
     public static void main(String[] args) {
         launch(args);
@@ -51,29 +48,24 @@ public class PersonneContainer extends Application {
         topPane.getChildren().addAll(labelN, textFieldN, btnDeployer);
         root.setTop(topPane);
 
-        btnDeployer.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                String n = textFieldN.getText();
-                setClientCount(Integer.parseInt(n));
-                jade.core.Runtime runtime = jade.core.Runtime.instance();
-                Profile profile = new ProfileImpl(false);
-                profile.setParameter(Profile.MAIN_HOST, "localhost");
-                profile.setParameter(Profile.CONTAINER_NAME, "client");
-                AgentContainer agentContainer = runtime.createAgentContainer(profile);
-                for (int i = 1; i <= getClientCount(); i++) {
-                    try {
-                        AgentController agentController = agentContainer.createNewAgent("client" + i, PersonneAgent.class.getName(), null);
-                        System.out.println("Agents belong to the container: " + agentContainer.getContainerName());
-                        agentController.start();
-                    } catch (ControllerException e) {
-                        e.printStackTrace();
-                    }
+        btnDeployer.setOnAction(_ -> {
+            String n = textFieldN.getText();
+            setClientCount(Integer.parseInt(n));
+            jade.core.Runtime runtime = jade.core.Runtime.instance();
+            Profile profile = new ProfileImpl(false);
+            profile.setParameter(Profile.MAIN_HOST, "localhost");
+            profile.setParameter(Profile.CONTAINER_NAME, "client");
+            AgentContainer agentContainer = runtime.createAgentContainer(profile);
+            for (int i = 1; i <= getClientCount(); i++) {
+                try {
+                    Object[] agentArgs = new Object[]{i};
+                    AgentController agentController = agentContainer.createNewAgent("client" + i, PersonneAgent.class.getName(), agentArgs);
+                    agentController.start();
+                } catch (ControllerException e) {
+                    e.printStackTrace();
                 }
-                primaryStage.close();
             }
         });
-
         Scene scene = new Scene(root, 400, 200);
         primaryStage.setScene(scene);
         primaryStage.show();
