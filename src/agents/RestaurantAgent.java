@@ -2,6 +2,7 @@ package agents;
 
 import jade.core.AID;
 import jade.core.Agent;
+import jade.core.behaviours.CyclicBehaviour;
 import jade.core.behaviours.OneShotBehaviour;
 import jade.core.behaviours.ParallelBehaviour;
 import jade.lang.acl.ACLMessage;
@@ -27,45 +28,46 @@ public class RestaurantAgent extends Agent {
             } else {
                 System.err.println("Invalid arguments. Expected a String and an Integer.");
                 doDelete();
+                return; // Return to avoid adding behaviors if arguments are invalid
             }
         } else {
             System.err.println("Invalid number of arguments. Expected 2 arguments.");
             doDelete();
+            return; // Return to avoid adding behaviors if arguments are invalid
         }
-        addBehaviour(parallelBehaviour);
-        parallelBehaviour.addSubBehaviour(new OneShotBehaviour() {
-            public void action() {
-                MessageTemplate messageTemplate=MessageTemplate.MatchPerformative(ACLMessage.REQUEST);
-                ACLMessage message=receive(messageTemplate);
-                if(message!=null) {
-                    ACLMessage aclMessage=new ACLMessage(ACLMessage.REQUEST);
-                    aclMessage.setContent("restaurant : "+myAgent.getLocalName()+",capacite :"+RestaurantCapacity);
-                    send(aclMessage);
-                }else {
-                    block();
-                }
-                MessageTemplate messageTemplate2=MessageTemplate.MatchPerformative(ACLMessage.PROPOSE);
-                ACLMessage message2=receive(messageTemplate2);
-                if(message2!=null) {
-                    if(Integer.parseInt(String.valueOf(RestaurantCapacity)) !=0) {
-                        int cp=Integer.parseInt(String.valueOf(RestaurantCapacity))-1;
-                        System.out.println(cp);
 
-                        Platform.runLater(() -> {
-                            RestaurantCapacity= Integer.parseInt(Integer.toString(cp));
-                        });
-                        ACLMessage aclMessage=new ACLMessage(ACLMessage.PROPOSE);
-                        aclMessage.setContent("reservation complete "+myAgent.getAID().getLocalName());
-                        //ams va chercher "rma" ds localhost
-                        aclMessage.addReceiver(new AID(message2.getContent(),AID.ISLOCALNAME));
-                        send(aclMessage);
-                    }
-                }else {
-                    block();
-                }
-            }
-        });
+        // Create and add behaviors
+        addBehaviour(new ReceiveRequests());
     }
+
+    private class ReceiveRequests extends CyclicBehaviour {
+        public void action() {
+            MessageTemplate messageTemplate = MessageTemplate.MatchPerformative(ACLMessage.REQUEST);
+            ACLMessage message = receive(messageTemplate);
+            if (message != null) {
+                int requestedCapacity = Integer.parseInt(message.getContent().split(":")[2].trim());
+                System.out.println(requestedCapacity);
+                if (requestedCapacity <= RestaurantCapacity) {
+                    // Accept reservation
+                    ACLMessage aclMessage = new ACLMessage(ACLMessage.INFORM);
+                    aclMessage.setContent("Reservation accepted at " + myAgent.getLocalName());
+                    System.out.println("Agent " + getLocalName() + " accepted a reservation for " + requestedCapacity + " persons.");
+                    aclMessage.addReceiver(message.getSender());
+                    send(aclMessage);
+                } else {
+                    // Refuse reservation
+                    ACLMessage aclMessage = new ACLMessage(ACLMessage.REFUSE);
+                    aclMessage.setContent("Reservation refused at " + myAgent.getLocalName() + ". Capacity exceeded.");
+                    System.out.println("Agent " + getLocalName() + " refused a reservation for " + requestedCapacity + " persons.");
+                    aclMessage.addReceiver(message.getSender());
+                    send(aclMessage);
+                }
+            } else {
+                block();
+            }
+        }
+    }
+
 
     protected void takeDown() {
         System.out.println("Agent " + getLocalName() + " terminating.");

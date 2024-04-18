@@ -26,6 +26,7 @@ public class PersonneContainer extends Application {
     private TextField textField;
     private int clientCount = 0;
     public TableView<AgentController> tableView;
+    public static String message;
 
     public static void main(String[] args) {
         launch(args);
@@ -54,6 +55,7 @@ public class PersonneContainer extends Application {
 
         tableView = new TableView<>();
         TableColumn<AgentController, String> idColumn = new TableColumn<>("Agent ID");
+        TableColumn<AgentController, String> nameColumn = new TableColumn<>("Agent Message");
         idColumn.setCellValueFactory(cellData -> {
             try {
                 return new SimpleStringProperty(cellData.getValue().getName());
@@ -62,6 +64,7 @@ public class PersonneContainer extends Application {
             }
         });
         tableView.getColumns().add(idColumn);
+        tableView.getColumns().add(nameColumn);
         root.setCenter(tableView);
 
         btnDeployer.setOnAction(_ -> {
@@ -71,12 +74,11 @@ public class PersonneContainer extends Application {
             Profile profile = new ProfileImpl(false);
             profile.setParameter(Profile.MAIN_HOST, "localhost");
             profile.setParameter(Profile.CONTAINER_NAME, "client");
-            profile.setParameter("jade_core_messaging_MessageManager_poolsize", "100");
             AgentContainer agentContainer = runtime.createAgentContainer(profile);
             ObservableList<AgentController> agents = FXCollections.observableArrayList();
             for (int i = 1; i <= getClientCount(); i++) {
                 try {
-                    Object[] agentArgs = new Object[]{i};
+                    Object[] agentArgs = new Object[]{i,message};
                     AgentController agentController = agentContainer.createNewAgent("client" + i, PersonneAgent.class.getName(), agentArgs);
                     agentController.start();
                     agents.add(agentController);
