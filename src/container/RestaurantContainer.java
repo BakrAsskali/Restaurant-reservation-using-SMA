@@ -1,7 +1,7 @@
 package container;
 
-import agents.PersonneAgent;
 import agents.RestaurantAgent;
+import jade.core.AID;
 import jade.core.Profile;
 import jade.core.ProfileImpl;
 import jade.core.Runtime;
@@ -22,10 +22,15 @@ import java.util.Random;
 
 public class RestaurantContainer extends Application {
 
-    private List<RestaurantInfo> restaurantInfos;
+    public static List<RestaurantInfo> restaurantInfos;
+    public static int numberOfRestaurants = 0;
 
     public static void main(String[] args) {
         launch(args);
+    }
+
+    public static AID getRestaurantAgent(int random) {
+        return new AID("restaurant" + random, AID.ISLOCALNAME);
     }
 
     @Override
@@ -46,7 +51,7 @@ public class RestaurantContainer extends Application {
         root.setTop(inputPane);
 
         btnSend.setOnAction(event -> {
-            int numberOfRestaurants = Integer.parseInt(txtNumberOfRestaurants.getText());
+            numberOfRestaurants = Integer.parseInt(txtNumberOfRestaurants.getText());
             showRestaurantInfoInterface(numberOfRestaurants, root);
         });
 
@@ -142,8 +147,8 @@ public class RestaurantContainer extends Application {
         return nameBuilder.toString();
     }
 
-    private static class RestaurantInfo {
-        private TextField nameTextField;
+    public static class RestaurantInfo {
+        public TextField nameTextField;
         private TextField capacityTextField;
 
         public RestaurantInfo(TextField nameTextField, TextField capacityTextField) {
@@ -161,19 +166,4 @@ public class RestaurantContainer extends Application {
         }
     }
 
-    public List<String> getRestaurantNames() {
-        List<String> restaurantNames = new ArrayList<>();
-        for (RestaurantInfo restaurantInfo : restaurantInfos) {
-            restaurantNames.add(restaurantInfo.getRestaurantName());
-        }
-        return restaurantNames;
-    }
-
-    public List<Integer> getCapacities() {
-        List<Integer> capacities = new ArrayList<>();
-        for (RestaurantInfo restaurantInfo : restaurantInfos) {
-            capacities.add(restaurantInfo.getRestaurantCapacity());
-        }
-        return capacities;
-    }
 }

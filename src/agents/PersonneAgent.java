@@ -1,7 +1,10 @@
 package agents;
 
+import container.RestaurantContainer;
 import jade.core.Agent;
+import jade.core.MessageQueue;
 import jade.core.behaviours.CyclicBehaviour;
+import jade.core.messaging.OutgoingEncodingFilter;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 
@@ -27,14 +30,11 @@ public class PersonneAgent extends Agent {
 
     private class ReservationBehaviour extends CyclicBehaviour {
         public void action() {
-            MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.INFORM);
-            ACLMessage message = receive(mt);
-            if (message != null) {
-                String content = message.getContent();
-                System.out.println(content);
-            } else {
-                block();
-            }
+            int random = (int) (Math.random() * RestaurantContainer.numberOfRestaurants) + 1;
+            ACLMessage aclMessage = new ACLMessage(ACLMessage.REQUEST);
+            aclMessage.setContent("restaurant : " + random + ", nombrePersonnes :" + nombrePersonnes);
+            aclMessage.addReceiver(RestaurantContainer.getRestaurantAgent(random));
+            send(aclMessage);
         }
     }
 }
