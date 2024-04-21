@@ -12,8 +12,11 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 import java.util.ArrayList;
@@ -57,6 +60,11 @@ public class RestaurantContainer extends Application {
 
         primaryStage.setScene(scene);
         primaryStage.setTitle("Restaurant Interface");
+        inputPane.setStyle("-fx-background-color: #f0f0f0; -fx-padding: 10px; -fx-border-color: #ccc; -fx-border-width: 1px;");
+
+        lblNumberOfRestaurants.setStyle("-fx-font-weight: bold;");
+        txtNumberOfRestaurants.setStyle("-fx-background-color: #ffffff; -fx-border-color: #ccc; -fx-border-width: 1px;");
+        btnSend.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white;");
         primaryStage.show();
     }
 
@@ -81,6 +89,12 @@ public class RestaurantContainer extends Application {
 
             restaurantPane.getChildren().addAll(lblName, txtName, lblCapacity, txtCapacity);
 
+            restaurantPane.setStyle("-fx-background-color: #f0f0f0; -fx-padding: 10px; -fx-border-color: #ccc; -fx-border-width: 1px;");
+
+            lblName.setStyle("-fx-font-weight: bold;");
+            txtName.setStyle("-fx-background-color: #ffffff; -fx-border-color: #ccc; -fx-border-width: 1px;");
+            lblCapacity.setStyle("-fx-font-weight: bold;");
+            txtCapacity.setStyle("-fx-background-color: #ffffff; -fx-border-color: #ccc; -fx-border-width: 1px;");
             restaurantInfos.add(new RestaurantInfo(txtName, txtCapacity));
         }
 
@@ -88,6 +102,7 @@ public class RestaurantContainer extends Application {
         btnValidate.setOnAction(event -> createRestaurantAgents(root));
         restaurantPane.getChildren().add(btnValidate);
 
+        btnValidate.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white;");
         root.setCenter(restaurantPane);
     }
 
@@ -116,6 +131,9 @@ public class RestaurantContainer extends Application {
             }
 
             Stage stage = (Stage) root.getScene().getWindow();
+
+            root.setBackground(new Background(new BackgroundFill(Color.WHITE, null, null)));
+
             stage.close(); // Close the window after creating agents
             displayPersonneContainer();
         } catch (ControllerException e) {
