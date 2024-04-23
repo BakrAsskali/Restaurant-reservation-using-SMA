@@ -27,6 +27,8 @@ public class PersonneContainer extends Application {
     private int clientCount = 0;
     public TableView<AgentController> tableView;
     public static String message;
+    public TableColumn<AgentController, String> idColumn = new TableColumn<>("Agent ID");
+    public static TableColumn<AgentController, String> nameColumn = new TableColumn<>("Agent Message");
 
     public static void main(String[] args) {
         launch(args);
@@ -54,8 +56,6 @@ public class PersonneContainer extends Application {
         root.setTop(topPane);
 
         tableView = new TableView<>();
-        TableColumn<AgentController, String> idColumn = new TableColumn<>("Agent ID");
-        TableColumn<AgentController, String> nameColumn = new TableColumn<>("Agent Message");
         idColumn.setCellValueFactory(cellData -> {
             try {
                 return new SimpleStringProperty(cellData.getValue().getName());

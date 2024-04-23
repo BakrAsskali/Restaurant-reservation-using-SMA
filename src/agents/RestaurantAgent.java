@@ -54,6 +54,7 @@ public class RestaurantAgent extends Agent {
                     System.out.println("Agent " + getLocalName() + " accepted a reservation for " + requestedCapacity + " persons.");
                     aclMessage.addReceiver(message.getSender());
                     send(aclMessage);
+                    RestaurantCapacity -= requestedCapacity;
                 } else {
                     // Refuse reservation
                     ACLMessage aclMessage = new ACLMessage(ACLMessage.REFUSE);
