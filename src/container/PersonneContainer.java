@@ -1,9 +1,9 @@
 package container;
 
 import agents.PersonneAgent;
+import jade.wrapper.AgentContainer;
 import jade.core.Profile;
 import jade.core.ProfileImpl;
-import jade.wrapper.AgentContainer;
 import jade.wrapper.AgentController;
 import jade.wrapper.ControllerException;
 import jade.wrapper.StaleProxyException;
@@ -18,6 +18,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 
 public class PersonneContainer extends Application {
@@ -37,25 +38,24 @@ public class PersonneContainer extends Application {
     public void start(Stage primaryStage) throws Exception {
         primaryStage.setTitle("Container Client");
 
-        BorderPane root = new BorderPane();
-        root.setPadding(new Insets(20));
-        root.setStyle("-fx-background-color: #f0f0f0;");
+        root = new BorderPane();
 
         VBox topPane = new VBox(10);
-        topPane.setStyle("-fx-background-color: #FFBB98; -fx-padding: 20px;");
+        topPane.setPadding(new Insets(20));
+        topPane.setStyle("-fx-background-color: #FFBB98;");
+
         Label labelN = new Label("Number of people (N):");
         labelN.setTextFill(Color.WHITE);
-        labelN.setFont(Font.font("Arial", 18));
+        labelN.setFont(Font.font("Arial", FontWeight.BOLD, 18));
+
         TextField textFieldN = new TextField();
-        textFieldN.setPrefWidth(200);
         Button btnDeployer = new Button("Deploy Agents");
-        btnDeployer.setStyle("-fx-background-color: #8a9ca3; -fx-text-fill: white; -fx-font-size: 16px; -fx-font-family: Arial;");
+        btnDeployer.setStyle("-fx-background-color: #7D8E95; -fx-text-fill: white; -fx-font-size: 16px; -fx-font-family: Arial;");
+
         topPane.getChildren().addAll(labelN, textFieldN, btnDeployer);
         root.setTop(topPane);
 
-        // Center TableView
-        TableView<AgentController> tableView = new TableView<>();
-        TableColumn<AgentController, String> idColumn = new TableColumn<>("Agent ID");
+        tableView = new TableView<>();
         idColumn.setCellValueFactory(cellData -> {
             try {
                 return new SimpleStringProperty(cellData.getValue().getName());
@@ -63,12 +63,11 @@ public class PersonneContainer extends Application {
                 throw new RuntimeException(e);
             }
         });
-        TableColumn<AgentController, String> nameColumn = new TableColumn<>("Agent Message");
-        tableView.getColumns().addAll(idColumn, nameColumn);
+        tableView.getColumns().add(idColumn);
+        tableView.getColumns().add(nameColumn);
         root.setCenter(tableView);
 
-        // Event handling for button
-        btnDeployer.setOnAction(t -> {
+        btnDeployer.setOnAction(_ -> {
             String n = textFieldN.getText();
             setClientCount(Integer.parseInt(n));
             jade.core.Runtime runtime = jade.core.Runtime.instance();
@@ -79,7 +78,7 @@ public class PersonneContainer extends Application {
             ObservableList<AgentController> agents = FXCollections.observableArrayList();
             for (int i = 1; i <= getClientCount(); i++) {
                 try {
-                    Object[] agentArgs = new Object[]{i, message};
+                    Object[] agentArgs = new Object[]{i,message};
                     AgentController agentController = agentContainer.createNewAgent("client" + i, PersonneAgent.class.getName(), agentArgs);
                     agentController.start();
                     agents.add(agentController);
@@ -90,7 +89,7 @@ public class PersonneContainer extends Application {
             tableView.setItems(agents);
         });
 
-        Scene scene = new Scene(root, 600, 400); // Increased width and height
+        Scene scene = new Scene(root, 400, 200);
         primaryStage.setScene(scene);
         primaryStage.show();
     }

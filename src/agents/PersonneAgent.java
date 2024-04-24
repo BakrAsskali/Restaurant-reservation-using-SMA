@@ -40,6 +40,7 @@ public class PersonneAgent extends Agent {
                 ACLMessage aclMessage = new ACLMessage(ACLMessage.REQUEST);
                 aclMessage.setContent("restaurant : " + random + ", numberPersons :" + agent.getNombrePersonnes());
                 aclMessage.addReceiver(RestaurantContainer.getRestaurantAgent(random));
+                System.out.println(RestaurantContainer.getRestaurantAgent(random));
                 System.out.println("Agent " + myAgent.getLocalName() + " sent a request to restaurant " + random);
                 myAgent.send(aclMessage);
                 agent.messageCount++;
@@ -59,9 +60,9 @@ public class PersonneAgent extends Agent {
                 String content = message.getContent();
                 System.out.println("Agent " + myAgent.getLocalName() + " received a response: " + content);
                 PersonneContainer.message = content;
-                PersonneContainer.nameColumn.setCellValueFactory(cellData -> {
+                PersonneContainer.nameColumn.setCellValueFactory(_ -> {
                     try {
-                        return new SimpleStringProperty(message.getContent());
+                        return new SimpleStringProperty(content);
                     } catch (Exception e) {
                         return new SimpleStringProperty("Error");
                     }

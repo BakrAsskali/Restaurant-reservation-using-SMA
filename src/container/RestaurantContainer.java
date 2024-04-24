@@ -17,11 +17,9 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.FlowPane;
-import javafx.scene.layout.GridPane;
+import javafx.scene.layout.*;
 import javafx.stage.Stage;
+import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -94,6 +92,8 @@ public class  RestaurantContainer extends Application {
         restaurantPane.add(btnValidate, 0, numberOfRestaurants + 1);
 
         root.setCenter(restaurantPane);
+
+        RestaurantContainer.restaurantInfos = restaurantInfos;
     }
 
     private GridPane createRestaurantPane() {
@@ -124,7 +124,7 @@ public class  RestaurantContainer extends Application {
 
     private Button createValidateButton(List<RestaurantInfo> restaurantInfos, BorderPane root) {
         Button btnValidate = new Button("Validate");
-        btnValidate.setOnAction(event -> createRestaurantAgents(restaurantInfos, root));
+        btnValidate.setOnAction(_ -> createRestaurantAgents(restaurantInfos, root));
         return btnValidate;
     }
 
@@ -138,7 +138,7 @@ public class  RestaurantContainer extends Application {
             AgentContainer agentContainer = Runtime.instance().createAgentContainer(profile);
 
             List<String> restaurantNames = new ArrayList<>();
-            for (RestaurantInfo restaurantInfo : RestaurantContainer.restaurantInfos) {
+            for (RestaurantInfo restaurantInfo : restaurantInfos) {
                 restaurantNames.add(restaurantInfo.getRestaurantName());
             }
 
@@ -150,6 +150,7 @@ public class  RestaurantContainer extends Application {
                 Object[] agentArgs = new Object[]{restaurantName, restaurantCapacity};
                 AgentController agentController = agentContainer.createNewAgent("restaurant" + (i + 1), RestaurantAgent.class.getName(), agentArgs);
                 agentController.start();
+                numberOfRestaurants++;
             }
 
             Stage stage = (Stage) root.getScene().getWindow();

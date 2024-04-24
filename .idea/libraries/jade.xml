@@ -1,7 +1,7 @@
 <component name="libraryTable">
-  <library name="legal">
+  <library name="jade">
     <CLASSES>
-      <root url="file://$PROJECT_DIR$/../../../jade/javafx-sdk-22.0.1/legal" />
+      <root url="jar://$PROJECT_DIR$/../JADE-all-4.6.0/jade/lib/jade.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />
