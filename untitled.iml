@@ -7,7 +7,13 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" exported="" name="jade" level="project" />
-    <orderEntry type="library" exported="" name="lib" level="project" />
+    <orderEntry type="library" name="jade1" level="project" />
+    <orderEntry type="library" name="lib1" level="project" />
+    <orderEntry type="library" name="javafx.swing" level="project" />
+    <orderEntry type="library" name="lib2" level="project" />
+    <orderEntry type="library" name="javafx1" level="project" />
+    <orderEntry type="library" name="lib" level="project" />
+    <orderEntry type="library" name="javafx" level="project" />
+    <orderEntry type="library" name="legal" level="project" />
   </component>
 </module>
