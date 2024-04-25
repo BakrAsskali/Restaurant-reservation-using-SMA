@@ -7,6 +7,8 @@ import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 
 public class PersonneAgent extends Agent {
     private int nombrePersonnes;
@@ -59,14 +61,7 @@ public class PersonneAgent extends Agent {
             if (message != null) {
                 String content = message.getContent();
                 System.out.println("Agent " + myAgent.getLocalName() + " received a response: " + content);
-                PersonneContainer.message = content;
-                PersonneContainer.nameColumn.setCellValueFactory(_ -> {
-                    try {
-                        return new SimpleStringProperty(content);
-                    } catch (Exception e) {
-                        return new SimpleStringProperty("Error");
-                    }
-                });
+                PersonneContainer.messages.add(content);
 
                 // Remove the ReservationBehaviour
                 myAgent.removeBehaviour(new ReservationBehaviour((PersonneAgent) myAgent));

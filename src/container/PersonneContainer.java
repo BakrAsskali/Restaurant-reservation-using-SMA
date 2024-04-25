@@ -29,6 +29,7 @@ public class PersonneContainer extends Application {
     public static String message;
     public TableColumn<AgentController, String> idColumn = new TableColumn<>("Agent ID");
     public static TableColumn<AgentController, String> nameColumn = new TableColumn<>("Agent Message");
+    public static ObservableList<String> messages = FXCollections.observableArrayList();
 
     public static void main(String[] args) {
         launch(args);
@@ -62,6 +63,11 @@ public class PersonneContainer extends Application {
             } catch (StaleProxyException e) {
                 throw new RuntimeException(e);
             }
+        });
+        PersonneContainer.nameColumn.setCellValueFactory(data -> {
+            AgentController agentController = data.getValue();
+            int index = tableView.getItems().indexOf(agentController);
+            return new SimpleStringProperty(index < PersonneContainer.messages.size() ? PersonneContainer.messages.get(index) : "Waiting...");
         });
         tableView.getColumns().add(idColumn);
         tableView.getColumns().add(nameColumn);
