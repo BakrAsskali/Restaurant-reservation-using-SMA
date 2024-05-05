@@ -124,7 +124,7 @@ public class  RestaurantContainer extends Application {
 
     private Button createValidateButton(List<RestaurantInfo> restaurantInfos, BorderPane root) {
         Button btnValidate = new Button("Validate");
-        btnValidate.setOnAction(_ -> createRestaurantAgents(restaurantInfos, root));
+        btnValidate.setOnAction(t -> createRestaurantAgents(restaurantInfos, root));
         return btnValidate;
     }
 

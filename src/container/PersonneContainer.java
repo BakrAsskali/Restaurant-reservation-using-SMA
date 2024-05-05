@@ -1,9 +1,9 @@
 package container;
 
 import agents.PersonneAgent;
-import jade.wrapper.AgentContainer;
 import jade.core.Profile;
 import jade.core.ProfileImpl;
+import jade.wrapper.AgentContainer;
 import jade.wrapper.AgentController;
 import jade.wrapper.ControllerException;
 import jade.wrapper.StaleProxyException;
@@ -18,7 +18,6 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 
 public class PersonneContainer extends Application {
@@ -47,7 +46,7 @@ public class PersonneContainer extends Application {
 
         Label labelN = new Label("Number of people (N):");
         labelN.setTextFill(Color.WHITE);
-        labelN.setFont(Font.font("Arial", FontWeight.BOLD, 18));
+        labelN.setFont(Font.font("Arial",  18));
 
         TextField textFieldN = new TextField();
         Button btnDeployer = new Button("Deploy Agents");
@@ -73,7 +72,7 @@ public class PersonneContainer extends Application {
         tableView.getColumns().add(nameColumn);
         root.setCenter(tableView);
 
-        btnDeployer.setOnAction(_ -> {
+        btnDeployer.setOnAction(t -> {
             String n = textFieldN.getText();
             setClientCount(Integer.parseInt(n));
             jade.core.Runtime runtime = jade.core.Runtime.instance();
